@@ -2,16 +2,65 @@ import { Suspense } from "react";
 import StatusBar, { DownTime } from "@/components/StatusBar";
 import { v2 } from "@datadog/datadog-api-client";
 import IncidentSection from "@/components/IncidentSection";
+import { IncidentSearchResults } from "@/lib/datadog";
 
 const monitors = [
-  { title: "蔵雲 - NextCloud 1", id: "3742884" },
+  { title: "蔵雲 - NextCloud", id: "3742884" },
   { title: "UniProject 公式サイト", id: "3741499" },
 ];
 
 export default function StatusPage() {
-  const incidentPromise = fetch("http://localhost:3000/api/incidents").then(
-    (res) => res.json()
-  );
+  const incidentPromise = fetch("http://localhost:3000/api/incidents")
+    .then((res) => res.json())
+    .then((data: IncidentSearchResults) => {
+      const incidents = data.data.attributes.incidents.map((incident) => ({
+        id: incident.data.id,
+        title: incident.data.attributes.title,
+        created: new Date(incident.data.attributes.created),
+        modified: new Date(incident.data.attributes.modified),
+        state: incident.data.attributes.state,
+        severity: incident.data.attributes.severity,
+        timeToDetect: incident.data.attributes.timeToDetect,
+        timeToRepair: incident.data.attributes.timeToRepair,
+        timeToResolve: incident.data.attributes.timeToResolve,
+        timeToInternalResponse: incident.data.attributes.timeToInternalResponse,
+        customerImpacted: incident.data.attributes.customerImpacted,
+        fields: incident.data.attributes.fields,
+        relationships: Object.fromEntries(
+          Object.entries(incident.data.relationships || {}).map(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ([key, rel]: [string, any]) => [
+              key,
+              {
+                data: Array.isArray(rel.data)
+                  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    rel.data.map((d: any) => ({
+                      id: d.id,
+                      type: d.type,
+                    }))
+                  : rel.data
+                  ? [
+                      {
+                        id: rel.data.id,
+                        type: rel.data.type,
+                      },
+                    ]
+                  : [],
+              },
+            ]
+          )
+        ),
+        incidentId: incident.data.id,
+        incidentUrl: `https://app.datadoghq.com/incidents/${incident.data.id}`,
+        createdAt: new Date(incident.data.attributes.created),
+        modifiedAt: new Date(incident.data.attributes.modified),
+        resolvedAt: incident.data.attributes.resolved
+          ? new Date(incident.data.attributes.resolved)
+          : null,
+        visibility: incident.data.attributes.visibility,
+      }));
+      return incidents;
+    });
 
   const promises = monitors.map(
     (monitor) =>
