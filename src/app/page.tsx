@@ -33,7 +33,7 @@ export const metadata = {
 } as Metadata;
 
 export default function StatusPage() {
-  const incidentPromise = fetch("http://localhost:3000/api/incidents")
+  const incidentPromise = fetch("http://status.uniproject.jp/api/incidents")
     .then((res) => res.json())
     .then((data: IncidentSearchResults) => {
       const incidents = data.data.attributes.incidents.map((incident) => ({
@@ -62,13 +62,13 @@ export default function StatusPage() {
                       type: d.type,
                     }))
                   : rel.data
-                    ? [
-                        {
-                          id: rel.data.id,
-                          type: rel.data.type,
-                        },
-                      ]
-                    : [],
+                  ? [
+                      {
+                        id: rel.data.id,
+                        type: rel.data.type,
+                      },
+                    ]
+                  : [],
               },
             ]
           )
@@ -88,7 +88,7 @@ export default function StatusPage() {
   const promises = monitors.map(
     (monitor) =>
       new Promise<DownTime[]>(async (resolve) => {
-        fetch(`http://localhost:3000/api/monitor-statuses?monitor_id=${monitor.id}`)
+        fetch(`http://status.uniproject.jp/api/monitor-statuses?monitor_id=${monitor.id}`)
           .then((res) => res.json())
           .then((data) => {
             if (!data || !Array.isArray(data.data)) {
