@@ -10,6 +10,10 @@ export const metadata: Metadata = {
       "UniProjectのステータスサイトは、Datadogの監視システムと連携し、サービスの健全性を24時間365日リアルタイムで把握・共有します。",
     url: "https://status.uniproject.jp/about",
     siteName: "UniProject ステータスサイト",
+    images: {
+      url: "https://status.uniproject.jp/og-image.png",
+      alt: "UniProject ステータスサイト",
+    },
   },
   twitter: {
     card: "summary_large_image",

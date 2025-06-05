@@ -20,6 +20,10 @@ export const metadata = {
       "過去90日間のシステム稼働状況をリアルタイムで確認できるステータスページです。Datadogの監視システムと連携し、サービスの健全性を把握・共有します。",
     url: "https://status.uniproject.jp",
     siteName: "UniProject システムステータス",
+    images: {
+      url: "https://status.uniproject.jp/og-image.png",
+      alt: "UniProject システムステータス",
+    },
   },
   twitter: {
     card: "summary_large_image",
