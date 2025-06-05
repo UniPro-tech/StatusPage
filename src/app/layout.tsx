@@ -1,6 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  themeColor: "3b82f6",
+};
 
 import Image from "next/image";
 import Link from "next/link";
@@ -67,9 +71,7 @@ export default function RootLayout({
         {children}
         <footer className="bg-white border-t border-slate-200 shadow-sm">
           <div className="max-w-5xl mx-auto px-4 py-6 text-center text-slate-600">
-            <p className="text-sm">
-              © {new Date().getFullYear()} UniProject. All rights reserved.
-            </p>
+            <p className="text-sm">© {new Date().getFullYear()} UniProject. All rights reserved.</p>
             <p className="text-xs mt-2">
               Powered by{" "}
               <a
