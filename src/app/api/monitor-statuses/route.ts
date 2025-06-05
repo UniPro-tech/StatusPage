@@ -12,13 +12,19 @@ datadogClientConfiguration.setServerVariables({
 });
 const apiInstance = new v2.EventsApi(datadogClientConfiguration);
 
-export async function GET() {
+export async function GET(req: Request) {
+  const params = new URL(req.url).searchParams;
+  const monitorId = params.get("monitor_id");
+  const fromDate = new Date(
+    params.get("from") || Date.now() - 90 * 24 * 60 * 60 * 1000
+  ); // デフォルトは90日前
   const res = await apiInstance.listEvents({
-    filterQuery:
-      "(source:alert (@monitor_id:3741790 OR monitor_id:3741790)) OR (source:datadog monitor_id:3741790 tags:downtime)",
-    filterFrom: "now-90d",
+    filterQuery: `@monitor_id:${monitorId}`,
+    filterFrom: fromDate.toISOString(),
     filterTo: "now",
+    pageLimit: 100, // 1ページあたりのイベント数
   });
+
   return new Response(JSON.stringify(res), {
     status: 200,
     headers: {
