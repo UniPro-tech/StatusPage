@@ -6,6 +6,7 @@ import { IncidentSearchResults } from "@/lib/datadog";
 
 import { monitors } from "../../statusPageConfig.json";
 import { Metadata } from "next";
+import CurrentIncident from "@/components/CurrentIncident";
 
 export const dynamic = "force-dynamic"; // SSRを有効にする
 export const revalidate = 0; // キャッシュを無効にする
@@ -37,7 +38,91 @@ export const metadata = {
 } as Metadata;
 
 export default function StatusPage() {
-  const incidentPromise = fetch("http://status.uniproject.jp/api/incidents")
+  const incidentsReqParams = new URLSearchParams();
+
+  // 複数stateを追加
+  ["resolved", "active", "stable"].forEach((state) => {
+    incidentsReqParams.append("state", state);
+  });
+
+  // ソート条件
+  incidentsReqParams.append("sort", "-created");
+
+  // ページング
+  incidentsReqParams.append("limit", "10");
+  incidentsReqParams.append("offset", "0");
+
+  // devか本番かでAPIのベースURLを切り替えるよ！
+  const apiBaseUrl =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : "https://status.uniproject.jp";
+
+  const incidentsPromise = fetch(`${apiBaseUrl}/api/incidents?${incidentsReqParams.toString()}`)
+    .then((res) => res.json())
+    .then((data: IncidentSearchResults) => {
+      const incidents = data.data.attributes.incidents.map((incident) => ({
+        id: incident.data.id,
+        title: incident.data.attributes.title,
+        created: new Date(incident.data.attributes.created),
+        modified: new Date(incident.data.attributes.modified),
+        state: incident.data.attributes.state,
+        severity: incident.data.attributes.severity,
+        timeToDetect: incident.data.attributes.timeToDetect,
+        timeToRepair: incident.data.attributes.timeToRepair,
+        timeToResolve: incident.data.attributes.timeToResolve,
+        timeToInternalResponse: incident.data.attributes.timeToInternalResponse,
+        customerImpacted: incident.data.attributes.customerImpacted,
+        fields: incident.data.attributes.fields,
+        relationships: Object.fromEntries(
+          Object.entries(incident.data.relationships || {}).map(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ([key, rel]: [string, any]) => [
+              key,
+              {
+                data: Array.isArray(rel.data)
+                  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    rel.data.map((d: any) => ({
+                      id: d.id,
+                      type: d.type,
+                    }))
+                  : rel.data
+                  ? [
+                      {
+                        id: rel.data.id,
+                        type: rel.data.type,
+                      },
+                    ]
+                  : [],
+              },
+            ]
+          )
+        ),
+        incidentId: incident.data.id,
+        incidentUrl: `https://app.datadoghq.com/incidents/${incident.data.id}`,
+        createdAt: new Date(incident.data.attributes.created),
+        modifiedAt: new Date(incident.data.attributes.modified),
+        resolvedAt: incident.data.attributes.resolved
+          ? new Date(incident.data.attributes.resolved)
+          : null,
+        visibility: incident.data.attributes.visibility,
+      }));
+      return incidents;
+    });
+
+  const currentIncidentReqParams = new URLSearchParams();
+
+  ["stable", "active"].forEach((state) => {
+    currentIncidentReqParams.append("state", state);
+  });
+
+  currentIncidentReqParams.append("sort", "-created");
+  currentIncidentReqParams.append("limit", "10");
+  currentIncidentReqParams.append("offset", "0");
+
+  const currentIncidentPromise = fetch(
+    `${apiBaseUrl}/api/incidents?${currentIncidentReqParams.toString()}`
+  )
     .then((res) => res.json())
     .then((data: IncidentSearchResults) => {
       const incidents = data.data.attributes.incidents.map((incident) => ({
@@ -148,6 +233,16 @@ export default function StatusPage() {
         </p>
       </header>
 
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center p-6 sm:p-12">
+            <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-500" />
+          </div>
+        }
+      >
+        <CurrentIncident promise={currentIncidentPromise} />
+      </Suspense>
+
       {/* ステータス履歴セクション */}
       <section className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8 border border-slate-200">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 mb-6">
@@ -209,7 +304,7 @@ export default function StatusPage() {
             </div>
           }
         >
-          <IncidentSection promise={incidentPromise} />
+          <IncidentSection promise={incidentsPromise} />
         </Suspense>
       </section>
     </main>
