@@ -13,9 +13,13 @@ datadogClientConfiguration.setServerVariables({
 const apiInstance = new v2.IncidentsApi(datadogClientConfiguration);
 
 export async function GET() {
-  datadogClientConfiguration.unstableOperations["v2.listIncidents"] = true;
+  datadogClientConfiguration.unstableOperations["v2.searchIncidents"] = true;
 
-  const res = await apiInstance.listIncidents();
+  const res = await apiInstance.searchIncidents({
+    query: "state:(stable OR active OR resolved)",
+    sort: "-created",
+    pageSize: 25,
+  });
   return new Response(JSON.stringify(res), {
     status: 200,
     headers: {
