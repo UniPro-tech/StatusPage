@@ -5,6 +5,32 @@ import IncidentSection from "@/components/IncidentSection";
 import { IncidentSearchResults } from "@/lib/datadog";
 
 import { monitors } from "../../statusPageConfig.json";
+import { Metadata } from "next";
+
+export const dynamic = "force-dynamic"; // SSRを有効にする
+export const revalidate = 0; // キャッシュを無効にする
+
+export const metadata = {
+  title: "UniProject システムステータス",
+  description:
+    "過去90日間のシステム稼働状況をリアルタイムで確認できるステータスページです。Datadogの監視システムと連携し、サービスの健全性を把握・共有します。",
+  openGraph: {
+    title: "UniProject システムステータス",
+    description:
+      "過去90日間のシステム稼働状況をリアルタイムで確認できるステータスページです。Datadogの監視システムと連携し、サービスの健全性を把握・共有します。",
+    url: "https://status.uniproject.jp",
+    siteName: "UniProject システムステータス",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "UniProject システムステータス",
+    description:
+      "過去90日間のシステム稼働状況をリアルタイムで確認できるステータスページです。Datadogの監視システムと連携し、サービスの健全性を把握・共有します。",
+    creator: "@uniproject_jp",
+    site: "@uniproject_jp",
+  },
+  themeColor: "#3b82f6",
+} as Metadata;
 
 export default function StatusPage() {
   const incidentPromise = fetch("http://localhost:3000/api/incidents")

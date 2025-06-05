@@ -1,3 +1,29 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "このサイトについて - UniProject ステータスサイト",
+  description:
+    "UniProjectのステータスサイトは、Datadogの監視システムと連携し、サービスの健全性を24時間365日リアルタイムで把握・共有します。",
+  openGraph: {
+    title: "このサイトについて - UniProject ステータスサイト",
+    description:
+      "UniProjectのステータスサイトは、Datadogの監視システムと連携し、サービスの健全性を24時間365日リアルタイムで把握・共有します。",
+    url: "https://status.uniproject.jp/about",
+    siteName: "UniProject ステータスサイト",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "このサイトについて - UniProject ステータスサイト",
+    description:
+      "UniProjectのステータスサイトは、Datadogの監視システムと連携し、サービスの健全性を24時間365日リアルタイムで把握・共有します。",
+    creator: "@uniproject_jp",
+    site: "@uniproject_jp",
+  },
+  themeColor: "#3b82f6",
+};
+
+export const dynamic = "force-static"; // 静的生成を強制
+
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
