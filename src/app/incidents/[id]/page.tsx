@@ -2,10 +2,15 @@ import { Suspense } from "react";
 import SuspenseIncidentPage from "./Suspense";
 import { v2 } from "@datadog/datadog-api-client";
 import { IncidentItem, IncidentFields } from "@/lib/datadog";
+import { Viewport } from "next";
 
 type RelationshipData = {
   id: string;
   type: string;
+};
+
+export const viewport: Viewport = {
+  themeColor: "3b82f6",
 };
 
 // DatadogのフィールドをIncidentFieldsの形式に変換する関数

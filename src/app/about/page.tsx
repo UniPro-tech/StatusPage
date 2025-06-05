@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
   title: "このサイトについて - UniProject ステータスサイト",
@@ -27,6 +27,10 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-static"; // 静的生成を強制
+
+export const viewport: Viewport = {
+  themeColor: "3b82f6",
+};
 
 export default function AboutPage() {
   return (

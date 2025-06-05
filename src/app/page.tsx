@@ -5,11 +5,15 @@ import IncidentSection from "@/components/IncidentSection";
 import { IncidentItem } from "@/lib/datadog";
 
 import { monitors } from "../../statusPageConfig.json";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import CurrentIncident from "@/components/CurrentIncident";
 
 export const dynamic = "force-dynamic"; // SSRを有効にする
 export const revalidate = 0; // キャッシュを無効にする
+
+export const viewport: Viewport = {
+  themeColor: "3b82f6",
+};
 
 export const metadata = {
   title: "UniProject システムステータス",
@@ -34,7 +38,6 @@ export const metadata = {
     creator: "@uniproject_jp",
     site: "@uniproject_jp",
   },
-  themeColor: "#3b82f6",
 } as Metadata;
 
 export default function StatusPage() {

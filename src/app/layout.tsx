@@ -1,10 +1,6 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-export const viewport: Viewport = {
-  themeColor: "3b82f6",
-};
 
 import Image from "next/image";
 import Link from "next/link";
