@@ -25,4 +25,4 @@ jobs:
           org-id: ${{ secrets.VERCEL_ORG_ID }}
           project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           production: ${{ github.ref == 'refs/heads/main' }}
-          prebuilt: true
+          prebuilt: false
