@@ -4,10 +4,7 @@ import { v2 } from "@datadog/datadog-api-client";
 import IncidentSection from "@/components/IncidentSection";
 import { IncidentSearchResults } from "@/lib/datadog";
 
-const monitors = [
-  { title: "蔵雲 - NextCloud", id: "3742884" },
-  { title: "UniProject 公式サイト", id: "3741499" },
-];
+import { monitors } from "../../statusPageConfig.json";
 
 export default function StatusPage() {
   const incidentPromise = fetch("http://localhost:3000/api/incidents")
