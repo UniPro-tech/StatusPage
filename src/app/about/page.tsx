@@ -31,20 +31,20 @@ export const dynamic = "force-static"; // 静的生成を強制
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-16 sm:px-6 lg:px-8">
         {/* ヘッダーセクション */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-6">
+        <div className="text-center mb-8 sm:mb-16">
+          <h1 className="text-3xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-4 sm:mb-6">
             ステータスサイトについて
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
             Datadogの高度な監視システムと連携し、サービスの健全性を24時間365日リアルタイムで把握・共有しています。
           </p>
         </div>
 
         {/* 監視機能セクション */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 mb-8 sm:mb-16">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center mb-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -67,7 +67,7 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center mb-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -92,7 +92,7 @@ export default function AboutPage() {
         </div>
 
         {/* インシデント管理セクション */}
-        <div className="bg-white p-8 rounded-xl shadow-sm mb-16">
+        <div className="bg-white p-4 sm:p-8 rounded-xl shadow-sm mb-8 sm:mb-16">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">インシデント管理システム</h2>
           <div className="space-y-4">
             <p className="text-gray-600">
@@ -108,7 +108,7 @@ export default function AboutPage() {
         </div>
 
         {/* コミットメントセクション */}
-        <div className="bg-white p-8 rounded-xl shadow-sm">
+        <div className="bg-white p-4 sm:p-8 rounded-xl shadow-sm">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">私たちの約束</h2>
           <p className="text-gray-600 mb-4">
             Datadogの強力な監視プラットフォームを活用し、サービスの信頼性と透明性を最大限に高めています。

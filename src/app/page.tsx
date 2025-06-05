@@ -139,45 +139,47 @@ export default function StatusPage() {
   );
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-8 space-y-8">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-8 space-y-4 sm:space-y-8">
       {/* ヘッダーセクション */}
       <header className="max-w-5xl mx-auto">
-        <h1 className="text-4xl font-black text-slate-800 mb-2">システムステータス</h1>
-        <p className="text-slate-600">過去90日間のシステム稼働状況をリアルタイムで確認できます</p>
+        <h1 className="text-2xl sm:text-4xl font-black text-slate-800 mb-2">システムステータス</h1>
+        <p className="text-sm sm:text-base text-slate-600">
+          過去90日間のシステム稼働状況をリアルタイムで確認できます
+        </p>
       </header>
 
       {/* ステータス履歴セクション */}
-      <section className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-slate-800">稼働状況</h2>
-          <div className="flex items-center gap-4 text-sm">
+      <section className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8 border border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">稼働状況</h2>
+          <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
             <span className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
+              <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full bg-emerald-400"></div>
               正常稼働
             </span>
             <span className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full bg-red-500"></div>
               障害発生
             </span>
             <span className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+              <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full bg-yellow-400"></div>
               パフォーマンス低下
             </span>
           </div>
         </div>
 
         {/* ダウンタイムセクション */}
-        <div className="bg-slate-50 p-6 rounded-xl">
+        <div className="bg-slate-50 p-3 sm:p-6 rounded-xl">
           {promises.map((promise, idx) => (
             <Suspense
               key={idx}
               fallback={
-                <div className="flex items-center justify-center p-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+                <div className="flex items-center justify-center p-6 sm:p-12">
+                  <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-500" />
                 </div>
               }
             >
-              <div className="bg-gray-100 p-4 rounded-lg">
+              <div className="bg-gray-100 p-3 sm:p-4 rounded-lg mb-2 last:mb-0">
                 <StatusBar
                   promise={promise}
                   title={monitors[idx].title}
@@ -185,25 +187,25 @@ export default function StatusPage() {
               </div>
             </Suspense>
           ))}
-          <div className="text-xs text-slate-500 mt-4">
+          <div className="text-[10px] sm:text-xs text-slate-500 mt-3 sm:mt-4">
             ※ 各バーにカーソルを合わせると詳細が表示されます
           </div>
         </div>
       </section>
 
       {/* インシデントセクション */}
-      <section className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+      <section className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8 border border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
             <span className="text-red-500">🚨</span> インシデント履歴
           </h2>
-          <div className="text-sm text-slate-500">直近のインシデントおよび解決状況</div>
+          <div className="text-xs sm:text-sm text-slate-500">直近のインシデントおよび解決状況</div>
         </div>
 
         <Suspense
           fallback={
-            <div className="flex items-center justify-center p-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+            <div className="flex items-center justify-center p-6 sm:p-12">
+              <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-500" />
             </div>
           }
         >

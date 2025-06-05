@@ -48,15 +48,17 @@ export default function StatusBar({
 
   return (
     <>
-      <div className="flex items-center gap-3 mb-4">
-        <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
-        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[status]}`}>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+        <h3 className="text-base sm:text-lg font-semibold text-slate-800">{title}</h3>
+        <span
+          className={`px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium ${statusStyles[status]} self-start sm:self-auto`}
+        >
           {status === "online" && "オンライン"}
           {status === "offline" && "オフライン"}
           {status === "degraded" && "パフォーマンス低下"}
         </span>
       </div>
-      <div className="grid grid-cols-90 gap-1">
+      <div className="grid grid-cols-45 sm:grid-cols-90 gap-1 sm:gap-1.5">
         {[...Array(90)].map((_, i) => {
           const days = Array.from({ length: 90 }, (_, idx) => {
             const d = new Date();
@@ -136,7 +138,7 @@ export default function StatusBar({
           return (
             <div
               key={i}
-              className="relative h-8 w-full group"
+              className="relative h-6 sm:h-8 w-full group"
               title={`${day.toLocaleDateString()} - ${
                 totalIssues > 0 ? `${totalIssues}件の問題` : "OK"
               }`}
@@ -175,10 +177,10 @@ export default function StatusBar({
               )}
 
               {/* ホバー時のツールチップ */}
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 sm:mb-2 hidden group-hover:block bg-gray-900 text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded whitespace-nowrap z-10">
                 {day.toLocaleDateString()}
                 {totalIssues > 0 && (
-                  <div className="text-xs">
+                  <div className="text-[10px] sm:text-xs">
                     {statusCount.error > 0 && <div>🔴 障害: {statusCount.error}件</div>}
                     {statusCount.degraded > 0 && <div>🟡 低下: {statusCount.degraded}件</div>}
                     {statusCount.warning > 0 && <div>🟠 警告: {statusCount.warning}件</div>}
