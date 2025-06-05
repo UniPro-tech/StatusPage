@@ -9,154 +9,199 @@ export type DownTime = {
 
 export default function StatusBar({
   promise,
+  title,
 }: {
   promise: Promise<DownTime[]>;
+  title: string;
 }) {
   const downtime = use(promise);
+
+  // 現在のステータスを判定する関数
+  const getCurrentStatus = () => {
+    if (downtime.length === 0) return "online";
+
+    const now = new Date();
+    const latestDowntime = downtime
+      .filter((dt) => dt.end >= now) // まだ終わってないものだけ
+      .sort((a, b) => b.start.getTime() - a.start.getTime())[0];
+
+    if (!latestDowntime) return "online";
+
+    switch (latestDowntime.status) {
+      case "error":
+        return "offline";
+      case "warning":
+      case "degraded":
+        return "degraded";
+      default:
+        return "online";
+    }
+  };
+
+  const status = getCurrentStatus();
+
+  const statusStyles = {
+    online: "bg-emerald-100 text-emerald-800",
+    offline: "bg-red-100 text-red-800",
+    degraded: "bg-yellow-100 text-yellow-800",
+  };
+
   return (
-    <div className="grid grid-cols-90 gap-1">
-      {[...Array(90)].map((_, i) => {
-        const days = Array.from({ length: 90 }, (_, idx) => {
-          const d = new Date();
-          d.setHours(0, 0, 0, 0);
-          d.setDate(d.getDate() - (89 - idx));
-          return d;
-        });
-
-        const getDowntimeSecondsForDay = (date: Date) => {
-          // その日の開始時刻と終了時刻を設定
-          const dayStart = new Date(date);
-          dayStart.setHours(0, 0, 0, 0);
-          const dayEnd = new Date(date);
-          dayEnd.setHours(23, 59, 59, 999);
-
-          // ステータスごとの集計を初期化
-          const statusDurations = {
-            error: 0,
-            warning: 0,
-            degraded: 0,
-          };
-
-          const statusCount = {
-            error: 0,
-            warning: 0,
-            degraded: 0,
-          };
-
-          // その日のダウンタイムを集計
-          downtime.forEach((dt) => {
-            // その日に関係するダウンタイムかチェック
-            if (dt.end >= dayStart && dt.start <= dayEnd) {
-              // 日付範囲内の開始時刻と終了時刻を計算
-              const start = new Date(
-                Math.max(dt.start.getTime(), dayStart.getTime())
-              );
-              const end = new Date(
-                Math.min(dt.end.getTime(), dayEnd.getTime())
-              );
-
-              // ミリ秒単位での期間を計算
-              const duration = end.getTime() - start.getTime();
-
-              // ステータスに応じて集計
-              if (dt.status === "error") {
-                statusDurations.error += duration;
-                statusCount.error++;
-              } else if (dt.status === "warning") {
-                statusDurations.warning += duration;
-                statusCount.warning++;
-              } else if (dt.status === "degraded") {
-                statusDurations.degraded += duration;
-                statusCount.degraded++;
-              }
-            }
+    <>
+      <div className="flex items-center gap-3 mb-4">
+        <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
+        <span
+          className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[status]}`}
+        >
+          {status === "online" && "オンライン"}
+          {status === "offline" && "オフライン"}
+          {status === "degraded" && "パフォーマンス低下"}
+        </span>
+      </div>
+      <div className="grid grid-cols-90 gap-1">
+        {[...Array(90)].map((_, i) => {
+          const days = Array.from({ length: 90 }, (_, idx) => {
+            const d = new Date();
+            d.setHours(0, 0, 0, 0);
+            d.setDate(d.getDate() - (89 - idx));
+            return d;
           });
 
-          // 1日の秒数で正規化（0-100%の範囲に）
-          const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-          const normalizedDurations = {
-            error: (statusDurations.error / ONE_DAY_MS) * 100,
-            warning: (statusDurations.warning / ONE_DAY_MS) * 100,
-            degraded: (statusDurations.degraded / ONE_DAY_MS) * 100,
+          const getDowntimeSecondsForDay = (date: Date) => {
+            // その日の開始時刻と終了時刻を設定
+            const dayStart = new Date(date);
+            dayStart.setHours(0, 0, 0, 0);
+            const dayEnd = new Date(date);
+            dayEnd.setHours(23, 59, 59, 999);
+
+            // ステータスごとの集計を初期化
+            const statusDurations = {
+              error: 0,
+              warning: 0,
+              degraded: 0,
+            };
+
+            const statusCount = {
+              error: 0,
+              warning: 0,
+              degraded: 0,
+            };
+
+            // その日のダウンタイムを集計
+            downtime.forEach((dt) => {
+              // その日に関係するダウンタイムかチェック
+              if (dt.end >= dayStart && dt.start <= dayEnd) {
+                // 日付範囲内の開始時刻と終了時刻を計算
+                const start = new Date(
+                  Math.max(dt.start.getTime(), dayStart.getTime())
+                );
+                const end = new Date(
+                  Math.min(dt.end.getTime(), dayEnd.getTime())
+                );
+
+                // ミリ秒単位での期間を計算
+                const duration = end.getTime() - start.getTime();
+
+                // ステータスに応じて集計
+                if (dt.status === "error") {
+                  statusDurations.error += duration;
+                  statusCount.error++;
+                } else if (dt.status === "warning") {
+                  statusDurations.warning += duration;
+                  statusCount.warning++;
+                } else if (dt.status === "degraded") {
+                  statusDurations.degraded += duration;
+                  statusCount.degraded++;
+                }
+              }
+            });
+
+            // 1日の秒数で正規化（0-100%の範囲に）
+            const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+            const normalizedDurations = {
+              error: (statusDurations.error / ONE_DAY_MS) * 100,
+              warning: (statusDurations.warning / ONE_DAY_MS) * 100,
+              degraded: (statusDurations.degraded / ONE_DAY_MS) * 100,
+            };
+
+            return {
+              total: Math.max(...Object.values(statusDurations)) / 1000,
+              statusCount,
+              normalizedDurations,
+            };
           };
 
-          return {
-            total: Math.max(...Object.values(statusDurations)) / 1000,
+          const day = days[i];
+          const {
+            total: downtimeSec,
             statusCount,
             normalizedDurations,
-          };
-        };
+          } = getDowntimeSecondsForDay(day);
+          const totalIssues =
+            statusCount.error + statusCount.warning + statusCount.degraded;
 
-        const day = days[i];
-        const {
-          total: downtimeSec,
-          statusCount,
-          normalizedDurations,
-        } = getDowntimeSecondsForDay(day);
-        const totalIssues =
-          statusCount.error + statusCount.warning + statusCount.degraded;
+          return (
+            <div
+              key={i}
+              className="relative h-8 w-full group"
+              title={`${day.toLocaleDateString()} - ${
+                totalIssues > 0 ? `${totalIssues}件の問題` : "OK"
+              }`}
+            >
+              {/* ベースの成功状態 */}
+              <div className="absolute inset-0 bg-emerald-400 rounded-sm"></div>
 
-        return (
-          <div
-            key={i}
-            className="relative h-8 w-full group"
-            title={`${day.toLocaleDateString()} - ${
-              totalIssues > 0 ? `${totalIssues}件の問題` : "OK"
-            }`}
-          >
-            {/* ベースの成功状態 */}
-            <div className="absolute inset-0 bg-emerald-400 rounded-sm"></div>
-
-            {/* 問題発生時のオーバーレイ */}
-            {downtimeSec > 0 && (
-              <div className="absolute inset-0 flex flex-col justify-end">
-                {statusCount.error > 0 && (
-                  <div
-                    className="w-full bg-gradient-to-b from-red-500 to-red-600 rounded-sm"
-                    style={{
-                      height: `${Math.max(10, normalizedDurations.error)}%`,
-                    }}
-                  />
-                )}
-                {statusCount.degraded > 0 && (
-                  <div
-                    className="w-full bg-gradient-to-b from-yellow-400 to-yellow-500 rounded-sm"
-                    style={{
-                      height: `${Math.max(8, normalizedDurations.degraded)}%`,
-                    }}
-                  />
-                )}
-                {statusCount.warning > 0 && (
-                  <div
-                    className="w-full bg-gradient-to-b from-orange-400 to-orange-500 rounded-sm"
-                    style={{
-                      height: `${Math.max(6, normalizedDurations.warning)}%`,
-                    }}
-                  />
-                )}
-              </div>
-            )}
-
-            {/* ホバー時のツールチップ */}
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-              {day.toLocaleDateString()}
-              {totalIssues > 0 && (
-                <div className="text-xs">
+              {/* 問題発生時のオーバーレイ */}
+              {downtimeSec > 0 && (
+                <div className="absolute inset-0 flex flex-col justify-end">
                   {statusCount.error > 0 && (
-                    <div>🔴 障害: {statusCount.error}件</div>
+                    <div
+                      className="w-full bg-gradient-to-b from-red-500 to-red-600 rounded-sm"
+                      style={{
+                        height: `${Math.max(10, normalizedDurations.error)}%`,
+                      }}
+                    />
                   )}
                   {statusCount.degraded > 0 && (
-                    <div>🟡 低下: {statusCount.degraded}件</div>
+                    <div
+                      className="w-full bg-gradient-to-b from-yellow-400 to-yellow-500 rounded-sm"
+                      style={{
+                        height: `${Math.max(8, normalizedDurations.degraded)}%`,
+                      }}
+                    />
                   )}
                   {statusCount.warning > 0 && (
-                    <div>🟠 警告: {statusCount.warning}件</div>
+                    <div
+                      className="w-full bg-gradient-to-b from-orange-400 to-orange-500 rounded-sm"
+                      style={{
+                        height: `${Math.max(6, normalizedDurations.warning)}%`,
+                      }}
+                    />
                   )}
                 </div>
               )}
+
+              {/* ホバー時のツールチップ */}
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
+                {day.toLocaleDateString()}
+                {totalIssues > 0 && (
+                  <div className="text-xs">
+                    {statusCount.error > 0 && (
+                      <div>🔴 障害: {statusCount.error}件</div>
+                    )}
+                    {statusCount.degraded > 0 && (
+                      <div>🟡 低下: {statusCount.degraded}件</div>
+                    )}
+                    {statusCount.warning > 0 && (
+                      <div>🟠 警告: {statusCount.warning}件</div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+    </>
   );
 }

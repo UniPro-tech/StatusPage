@@ -157,10 +157,7 @@ export default function StatusPage() {
               }
             >
               <div className="bg-gray-100 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">
-                  {monitors[idx].title}
-                </h3>
-                <StatusBar promise={promise} />
+                <StatusBar promise={promise} title={monitors[idx].title} />
               </div>
             </Suspense>
           ))}
