@@ -15,7 +15,7 @@ type DownTime = {
   name: string;
   start: Date;
   end: Date;
-  status: v2.EventStatusType;
+  status: "error" | "warning" | "degraded" | "success";
 };
 
 export default function StatusPage() {
@@ -28,48 +28,48 @@ export default function StatusPage() {
       fetch("/api/incidents")
         .then((res) => res.json())
         .then((data) => setIncidents(data.data || [])),
-      fetch("/api/monitor-statuses")
+      fetch("/api/monitor-statuses?monitor_id=3742884")
         .then((res) => res.json())
         .then((data) => {
           if (!data || !Array.isArray(data.data)) {
             throw new Error("Invalid data format");
           }
-          const parsedEvents =
+
+          // イベントを古い順にソート
+          const parsedEvents = (
             (data as v2.EventsListResponse).data?.map((e) => ({
               name: e.attributes?.attributes?.title || "Unknown Event",
               time: new Date(e.attributes?.attributes?.timestamp || 0),
               status: e.attributes?.attributes?.status || "success",
-            })) || [];
+            })) || []
+          ).sort((a, b) => a.time.getTime() - b.time.getTime());
+
           const parsedDowntime = new Array<DownTime>();
-          for (let i = 0; i < parsedEvents.length; i++) {
-            const nextEvent = parsedEvents[i];
-            const preventEvent = parsedEvents[i + 1];
-            if (i == 0 && nextEvent.status === "error") {
-              parsedDowntime.push({
-                name: preventEvent.name,
-                start: nextEvent.time,
-                end: preventEvent.time,
-                status: nextEvent.status,
-              });
+          let currentDowntime: DownTime | null = null;
+
+          parsedEvents.forEach((event) => {
+            if (event.status === "error" && !currentDowntime) {
+              // エラー状態の開始
+              currentDowntime = {
+                name: event.name,
+                start: event.time,
+                end: new Date(), // 仮の終了時刻
+                status: "error",
+              };
+            } else if (event.status === "success" && currentDowntime) {
+              // エラー状態の終了
+              currentDowntime.end = event.time;
+              parsedDowntime.push(currentDowntime);
+              currentDowntime = null;
             }
-            if (
-              nextEvent.status === "error" &&
-              preventEvent &&
-              preventEvent.status === "success"
-            ) {
-              parsedDowntime.push({
-                name: nextEvent.name,
-                start: preventEvent.time,
-                end: nextEvent.time,
-                status: nextEvent.status,
-              });
-              console.log(
-                `Downtime detected: ${
-                  nextEvent.name
-                } from ${preventEvent.time.toLocaleString()} to ${nextEvent.time.toLocaleString()}`
-              );
-            }
+          });
+
+          // 最後のダウンタイムがまだ終了していない場合
+          if (currentDowntime) {
+            parsedDowntime.push(currentDowntime);
           }
+
+          console.log("Parsed Events:", parsedEvents);
           console.log("Parsed Downtime:", parsedDowntime);
           setDowntime(parsedDowntime);
         }),
@@ -125,38 +125,75 @@ export default function StatusPage() {
                   });
 
                   const getDowntimeSecondsForDay = (date: Date) => {
+                    // その日の開始時刻と終了時刻を設定
                     const dayStart = new Date(date);
+                    dayStart.setHours(0, 0, 0, 0);
                     const dayEnd = new Date(date);
                     dayEnd.setHours(23, 59, 59, 999);
 
-                    let total = 0;
+                    // ステータスごとの集計を初期化
+                    const statusDurations = {
+                      error: 0,
+                      warning: 0,
+                      degraded: 0,
+                    };
+
                     const statusCount = {
                       error: 0,
                       warning: 0,
                       degraded: 0,
                     };
 
+                    // その日のダウンタイムを集計
                     downtime.forEach((dt) => {
+                      // その日に関係するダウンタイムかチェック
                       if (dt.end >= dayStart && dt.start <= dayEnd) {
-                        const start = dt.start < dayStart ? dayStart : dt.start;
-                        const end = dt.end > dayEnd ? dayEnd : dt.end;
-                        total += Math.max(0, end.getTime() - start.getTime());
+                        // 日付範囲内の開始時刻と終了時刻を計算
+                        const start = new Date(
+                          Math.max(dt.start.getTime(), dayStart.getTime())
+                        );
+                        const end = new Date(
+                          Math.min(dt.end.getTime(), dayEnd.getTime())
+                        );
 
-                        // ステータスごとのカウントを追加
-                        if (dt.status === "error") statusCount.error++;
-                        else if (dt.status === "warning") statusCount.warning++;
+                        // ミリ秒単位での期間を計算
+                        const duration = end.getTime() - start.getTime();
+
+                        // ステータスに応じて集計
+                        if (dt.status === "error") {
+                          statusDurations.error += duration;
+                          statusCount.error++;
+                        } else if (dt.status === "warning") {
+                          statusDurations.warning += duration;
+                          statusCount.warning++;
+                        } else if (dt.status === "degraded") {
+                          statusDurations.degraded += duration;
+                          statusCount.degraded++;
+                        }
                       }
                     });
 
+                    // 1日の秒数で正規化（0-100%の範囲に）
+                    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+                    const normalizedDurations = {
+                      error: (statusDurations.error / ONE_DAY_MS) * 100,
+                      warning: (statusDurations.warning / ONE_DAY_MS) * 100,
+                      degraded: (statusDurations.degraded / ONE_DAY_MS) * 100,
+                    };
+
                     return {
-                      total: total / 1000,
+                      total: Math.max(...Object.values(statusDurations)) / 1000,
                       statusCount,
+                      normalizedDurations,
                     };
                   };
 
                   const day = days[i];
-                  const { total: downtimeSec, statusCount } =
-                    getDowntimeSecondsForDay(day);
+                  const {
+                    total: downtimeSec,
+                    statusCount,
+                    normalizedDurations,
+                  } = getDowntimeSecondsForDay(day);
                   const totalIssues =
                     statusCount.error +
                     statusCount.warning +
@@ -182,7 +219,7 @@ export default function StatusPage() {
                               style={{
                                 height: `${Math.max(
                                   10,
-                                  Math.min(100, (downtimeSec / 86400) * 100)
+                                  normalizedDurations.error
                                 )}%`,
                               }}
                             />
@@ -190,13 +227,23 @@ export default function StatusPage() {
                           {statusCount.degraded > 0 && (
                             <div
                               className="w-full bg-gradient-to-b from-yellow-400 to-yellow-500 rounded-sm"
-                              style={{ height: "25%" }}
+                              style={{
+                                height: `${Math.max(
+                                  8,
+                                  normalizedDurations.degraded
+                                )}%`,
+                              }}
                             />
                           )}
                           {statusCount.warning > 0 && (
                             <div
                               className="w-full bg-gradient-to-b from-orange-400 to-orange-500 rounded-sm"
-                              style={{ height: "15%" }}
+                              style={{
+                                height: `${Math.max(
+                                  6,
+                                  normalizedDurations.warning
+                                )}%`,
+                              }}
                             />
                           )}
                         </div>
