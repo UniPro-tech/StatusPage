@@ -176,34 +176,40 @@ export default function SuspenseIncidentPage({
             )}
 
             <div className="grid grid-cols-2 gap-4 mt-6">
-              <div className="bg-blue-50 rounded-lg p-4">
+              <div
+                className={`bg-blue-50 rounded-lg p-4 ${
+                  incident.resolvedAt ? "col-span-1" : "col-span-2"
+                }`}
+              >
                 <h4 className="text-sm font-medium text-blue-900 mb-1">検知時間</h4>
                 <p className="text-2xl font-bold text-blue-700">
                   {Math.round(incident.timeToDetect / 60)} 分
                 </p>
               </div>
-              <div className="bg-green-50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-green-900 mb-1">解決時間</h4>
-                <p className="text-2xl font-bold text-green-700">
-                  {(() => {
-                    const minutes = Math.round(incident.timeToResolve / 60);
-                    if (minutes >= 1440) {
-                      const days = Math.floor(minutes / 1440);
-                      const hours = Math.floor((minutes % 1440) / 60);
-                      const mins = minutes % 60;
-                      return `${days}日${hours > 0 ? `${hours}時間` : ""}${
-                        mins > 0 ? `${mins}分` : ""
-                      }`;
-                    } else if (minutes >= 60) {
-                      const hours = Math.floor(minutes / 60);
-                      const mins = minutes % 60;
-                      return `${hours}時間${mins > 0 ? `${mins}分` : ""}`;
-                    } else {
-                      return `${minutes}分`;
-                    }
-                  })()}
-                </p>
-              </div>
+              {incident.resolvedAt && (
+                <div className="bg-green-50 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-green-900 mb-1">解決時間</h4>
+                  <p className="text-2xl font-bold text-green-700">
+                    {(() => {
+                      const minutes = Math.round(incident.timeToResolve / 60);
+                      if (minutes >= 1440) {
+                        const days = Math.floor(minutes / 1440);
+                        const hours = Math.floor((minutes % 1440) / 60);
+                        const mins = minutes % 60;
+                        return `${days}日${hours > 0 ? `${hours}時間` : ""}${
+                          mins > 0 ? `${mins}分` : ""
+                        }`;
+                      } else if (minutes >= 60) {
+                        const hours = Math.floor(minutes / 60);
+                        const mins = minutes % 60;
+                        return `${hours}時間${mins > 0 ? `${mins}分` : ""}`;
+                      } else {
+                        return `${minutes}分`;
+                      }
+                    })()}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
