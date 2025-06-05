@@ -88,7 +88,7 @@ export default function CurrentIncident({ promise }: { promise: Promise<Incident
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    発生時刻: {new Date(incident.createdAt).toLocaleString()}
+                    発生時刻: {new Date(incident.createdAt).toLocaleString("ja-JP")}
                   </p>
                   {incident.customerImpact.customerImpacted && (
                     <div className="text-xs sm:text-sm text-slate-600 flex items-start gap-2">

@@ -139,7 +139,7 @@ export default function StatusBar({
             <div
               key={i}
               className="relative h-6 sm:h-8 w-full group"
-              title={`${day.toLocaleDateString()} - ${
+              title={`${day.toLocaleDateString("ja-JP")} - ${
                 totalIssues > 0 ? `${totalIssues}件の問題` : "OK"
               }`}
             >
@@ -178,7 +178,7 @@ export default function StatusBar({
 
               {/* ホバー時のツールチップ */}
               <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 sm:mb-2 hidden group-hover:block bg-gray-900 text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded whitespace-nowrap z-10">
-                {day.toLocaleDateString()}
+                {day.toLocaleDateString("ja-JP")}
                 {totalIssues > 0 && (
                   <div className="text-[10px] sm:text-xs">
                     {statusCount.error > 0 && <div>🔴 障害: {statusCount.error}件</div>}

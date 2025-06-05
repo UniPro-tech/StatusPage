@@ -28,13 +28,13 @@ export default function IncidentSection({ promise }: { promise: Promise<Incident
                 <div className="space-y-1 text-xs sm:text-sm text-slate-500">
                   <p className="flex items-center gap-2">
                     <span>📅</span>
-                    {new Date(incident.createdAt).toLocaleString()}
+                    {new Date(incident.createdAt).toLocaleString("ja-JP")}
                   </p>
                   {incident.state === "resolved" && (
                     <p className="flex items-center gap-2">
                       <span>✅</span>
                       <span className="text-emerald-600 font-medium">
-                        {incident.resolvedAt?.toLocaleString()}
+                        {incident.resolvedAt?.toLocaleString("ja-JP")}
                       </span>
                     </p>
                   )}
