@@ -43,6 +43,9 @@ export default function RootLayout({
               <span className="text-xl font-bold tracking-tight text-slate-800 text-center">
                 StatusPage
               </span>
+              <div className="rounded-full border border-blue-400 bg-blue-50 py-0.5 px-2.5 text-center text-sm transition-all shadow-sm text-blue-600">
+                Beta
+              </div>
             </Link>
             <nav className="flex items-center gap-6">
               <Link
@@ -61,7 +64,7 @@ export default function RootLayout({
           </div>
         </header>
         {children}
-        <footer className="bg-white border-t border-slate-200 shadow-sm mt-8">
+        <footer className="bg-white border-t border-slate-200 shadow-sm">
           <div className="max-w-5xl mx-auto px-4 py-6 text-center text-slate-600">
             <p className="text-sm">
               © {new Date().getFullYear()} UniProject. All rights reserved.
