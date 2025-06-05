@@ -8,6 +8,14 @@ export default function CurrentIncident({ promise }: { promise: Promise<Incident
     return <></>;
   }
 
+  // 影響範囲の文字列を配列に分割する関数
+  const parseImpactScope = (scope: unknown) => {
+    if (!scope) return [];
+    // [1], [2] などで始まる行にマッチする正規表現
+    const regex = /\[\d+\].*?(?=\[\d+\]|$)/g;
+    return String(scope).match(regex) || [String(scope)];
+  };
+
   return (
     <section className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8 border border-slate-200">
       <div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -49,8 +57,8 @@ export default function CurrentIncident({ promise }: { promise: Promise<Incident
                   />
                 </svg>
               </div>
-              <div>
-                <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="text-base sm:text-lg font-semibold text-slate-800">
                     {incident.title}
                   </h3>
@@ -61,12 +69,61 @@ export default function CurrentIncident({ promise }: { promise: Promise<Incident
                         : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {incident.state === "stable" ? "監視中" : "対応中"}
+                    {incident.state === "stable" ? "安定化" : "対応中"}
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  発生時刻: {new Date(incident.createdAt).toLocaleString()}
-                </p>
+                <div className="mt-2 space-y-1.5">
+                  <p className="text-xs sm:text-sm text-slate-500 flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    発生時刻: {new Date(incident.createdAt).toLocaleString()}
+                  </p>
+                  {incident.customerImpact.customerImpacted && (
+                    <div className="text-xs sm:text-sm text-slate-600 flex items-start gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 mt-0.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                      <div className="flex-1">
+                        <span className="font-medium">影響範囲:</span>
+                        <ul className="mt-1 space-y-1">
+                          {parseImpactScope(incident.customerImpact.customerImpactScope).map(
+                            (scope, index) => (
+                              <li
+                                key={index}
+                                className="pl-4"
+                              >
+                                {scope.trim()}
+                              </li>
+                            )
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

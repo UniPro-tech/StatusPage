@@ -234,7 +234,13 @@ export type IncidentItem = {
   timeToRepair: number;
   timeToResolve: number;
   timeToInternalResponse: number;
-  customerImpacted: boolean;
+  customerImpact: {
+    customerImpacted: boolean;
+    customerImpactScope: string;
+    customerImpactStart: Date | null;
+    customerImpactEnd: Date | null;
+    customerImpactDuration: number;
+  };
   fields: IncidentFields;
   relationships: IncidentItemRelationships;
   incidentId: string;

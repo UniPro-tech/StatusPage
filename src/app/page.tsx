@@ -72,7 +72,17 @@ export default function StatusPage() {
         timeToRepair: incident.data.attributes.timeToRepair,
         timeToResolve: incident.data.attributes.timeToResolve,
         timeToInternalResponse: incident.data.attributes.timeToInternalResponse,
-        customerImpacted: incident.data.attributes.customerImpacted,
+        customerImpact: {
+          customerImpacted: incident.data.attributes.customerImpacted,
+          customerImpactScope: incident.data.attributes.customerImpactScope,
+          customerImpactStart: incident.data.attributes.customerImpactStart
+            ? new Date(incident.data.attributes.customerImpactStart)
+            : null,
+          customerImpactEnd: incident.data.attributes.customerImpactEnd
+            ? new Date(incident.data.attributes.customerImpactEnd)
+            : null,
+          customerImpactDuration: incident.data.attributes.customerImpactDuration,
+        },
         fields: incident.data.attributes.fields,
         relationships: Object.fromEntries(
           Object.entries(incident.data.relationships || {}).map(
@@ -136,7 +146,17 @@ export default function StatusPage() {
         timeToRepair: incident.data.attributes.timeToRepair,
         timeToResolve: incident.data.attributes.timeToResolve,
         timeToInternalResponse: incident.data.attributes.timeToInternalResponse,
-        customerImpacted: incident.data.attributes.customerImpacted,
+        customerImpact: {
+          customerImpacted: incident.data.attributes.customerImpacted,
+          customerImpactScope: incident.data.attributes.customerImpactScope,
+          customerImpactStart: incident.data.attributes.customerImpactStart
+            ? new Date(incident.data.attributes.customerImpactStart)
+            : null,
+          customerImpactEnd: incident.data.attributes.customerImpactEnd
+            ? new Date(incident.data.attributes.customerImpactEnd)
+            : null,
+          customerImpactDuration: incident.data.attributes.customerImpactDuration,
+        },
         fields: incident.data.attributes.fields,
         relationships: Object.fromEntries(
           Object.entries(incident.data.relationships || {}).map(
