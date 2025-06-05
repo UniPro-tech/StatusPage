@@ -1,8 +1,55 @@
 import { IncidentItem } from "@/lib/datadog";
+import Link from "next/link";
 import { use } from "react";
+
+function SeverityBadge({ severity }: { severity: string }) {
+  const color =
+    severity === "SEV-1"
+      ? "bg-red-600"
+      : severity === "SEV-2"
+      ? "bg-orange-500"
+      : severity === "SEV-3"
+      ? "bg-yellow-500"
+      : severity === "SEV-4"
+      ? "bg-blue-500"
+      : severity === "SEV-5"
+      ? "bg-green-500"
+      : "bg-gray-400";
+  return (
+    <span className={`inline-block px-2 py-1 text-xs rounded-full ${color} text-white font-medium`}>
+      {severity}
+    </span>
+  );
+}
+
+function StateBadge({ state }: { state: string }) {
+  const { color, label } =
+    state === "resolved"
+      ? { color: "bg-emerald-100 text-emerald-800", label: "解決済み" }
+      : state === "stable"
+      ? { color: "bg-yellow-100 text-yellow-800", label: "安定" }
+      : { color: "bg-red-100 text-red-800", label: "対応中" };
+
+  return (
+    <span className={`inline-block px-3 py-1 text-xs rounded-full ${color} font-medium`}>
+      {label}
+    </span>
+  );
+}
+
+function formatDate(date: Date) {
+  return date.toLocaleString("ja-JP", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 export default function IncidentSection({ promise }: { promise: Promise<IncidentItem[]> }) {
   const incidents = use(promise);
+
   if (incidents.length === 0)
     return (
       <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 sm:p-6 text-emerald-800 flex items-center gap-2 sm:gap-3">
@@ -12,70 +59,91 @@ export default function IncidentSection({ promise }: { promise: Promise<Incident
         </p>
       </div>
     );
-  else
-    return (
-      <section className="space-y-3 sm:space-y-4">
-        {incidents.map((incident) => (
-          <div
-            key={incident.id}
-            className="p-4 sm:p-6 rounded-xl bg-white border border-slate-200 hover:shadow-lg transition-all duration-200"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0">
-              <div>
-                <h3 className="text-base sm:text-lg font-semibold text-slate-800 mb-2">
+
+  return (
+    <section className="space-y-4">
+      {incidents.map((incident) => (
+        <Link
+          href={`/incidents/${incident.id}`}
+          key={incident.id}
+          className="block w-full"
+        >
+          <article className="p-4 sm:p-6 rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-200">
+            <div className="flex flex-col gap-4">
+              {/* ヘッダー部分 */}
+              <div className="flex items-start justify-between gap-4">
+                <h3 className="text-base sm:text-lg font-semibold text-slate-800 flex-grow">
                   {incident.title}
                 </h3>
-                <div className="space-y-1 text-xs sm:text-sm text-slate-500">
-                  <p className="flex items-center gap-2">
-                    <span>📅</span>
-                    {new Date(incident.createdAt).toLocaleString("ja-JP")}
+                <div className="flex gap-2 flex-shrink-0">
+                  <SeverityBadge severity={incident.severity} />
+                  <StateBadge state={incident.state} />
+                </div>
+              </div>
+
+              {/* 詳細情報 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div className="space-y-2">
+                  <p className="flex items-center gap-2 text-slate-600">
+                    <span
+                      role="img"
+                      aria-label="calendar"
+                    >
+                      📅
+                    </span>
+                    <span>作成: {formatDate(incident.created)}</span>
                   </p>
-                  {incident.state === "resolved" && (
-                    <p className="flex items-center gap-2">
-                      <span>✅</span>
-                      <span className="text-emerald-600 font-medium">
-                        {incident.resolvedAt?.toLocaleString("ja-JP")}
+                  {incident.resolvedAt && (
+                    <p className="flex items-center gap-2 text-emerald-600">
+                      <span
+                        role="img"
+                        aria-label="check"
+                      >
+                        ✅
+                      </span>
+                      <span>解決: {formatDate(incident.resolvedAt)}</span>
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  {incident.fields.services?.value && (
+                    <p className="flex items-center gap-2 text-slate-600">
+                      <span
+                        role="img"
+                        aria-label="server"
+                      >
+                        🖥️
+                      </span>
+                      <span className="line-clamp-1">{incident.fields.services.value}</span>
+                    </p>
+                  )}
+                  {incident.customerImpact.customerImpacted && (
+                    <p className="flex items-center gap-2 text-yellow-600">
+                      <span
+                        role="img"
+                        aria-label="warning"
+                      >
+                        ⚠️
+                      </span>
+                      <span className="line-clamp-1">
+                        {incident.customerImpact.customerImpactScope}
                       </span>
                     </p>
                   )}
-                  <p className="flex items-center gap-2">
-                    <span>📊</span>
-                    <span
-                      className={
-                        incident.state === "resolved"
-                          ? "text-emerald-600"
-                          : incident.state === "stable"
-                          ? "text-yellow-600"
-                          : "text-red-600"
-                      }
-                    >
-                      {incident.state === "resolved"
-                        ? "解決済み"
-                        : incident.state === "stable"
-                        ? "安定"
-                        : "対応中"}
-                    </span>
-                  </p>
                 </div>
               </div>
-              <div
-                className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium ${
-                  incident.state === "resolved"
-                    ? "bg-emerald-100 text-emerald-800"
-                    : incident.state === "stable"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-red-100 text-red-800"
-                } self-start`}
-              >
-                {incident.state === "resolved"
-                  ? "RESOLVED"
-                  : incident.state === "stable"
-                  ? "STABLE"
-                  : "ACTIVE"}
-              </div>
+
+              {/* 概要（あれば表示） */}
+              {incident.fields.summary?.value && (
+                <p className="text-sm text-slate-600 line-clamp-2 mt-2">
+                  {incident.fields.summary.value}
+                </p>
+              )}
             </div>
-          </div>
-        ))}
-      </section>
-    );
+          </article>
+        </Link>
+      ))}
+    </section>
+  );
 }
