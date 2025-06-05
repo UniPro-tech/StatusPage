@@ -1,48 +1,13 @@
 import { client } from "@datadog/datadog-api-client";
 
-export type IncidentSearchResults = {
-  data: {
-    type: "incidents_search_results";
-    attributes: {
-      total: number;
-      incidents: IncidentWrapper[];
-      facets: Facets;
-    };
-    additionalProperties: {
-      relationships: {
-        incidents_relationship: {
-          data: IncidentReference[];
-        };
-      };
-    };
-  };
-  included: IncludedIncident[];
-  meta: {
-    pagination: {
-      nextOffset: number;
-      offset: number;
-      size: number;
-    };
-  };
-};
-
-type IncidentReference = {
-  type: "incidents";
-  id: string;
-};
-
-type IncidentWrapper = {
-  data: IncidentData;
-};
-
-type IncidentData = {
+export type IncidentData = {
   type: "incidents";
   id: string;
   attributes: IncidentAttributes;
   relationships: IncidentRelationships;
 };
 
-type IncidentAttributes = {
+export type IncidentAttributes = {
   title: string;
   created: string;
   modified: string;
@@ -137,63 +102,6 @@ type IncidentRelationships = {
   integrations: { data: unknown[] };
   impacts: { data: unknown[] };
   userDefinedFields: { data: unknown[] };
-};
-
-type IncludedIncident = {
-  _data: IncidentData;
-};
-
-type Facets = {
-  additionalProperties: {
-    visibility: CountFacet[];
-    time_to_detect: AggregateFacet[];
-    is_test: CountFacet[];
-    customer_impacted: CountFacet[];
-    incident_type: IncidentTypeFacet[];
-  };
-  commander: UserFacet[];
-  createdBy: UserFacet[];
-  fields: FieldFacet[];
-  impact: CountFacet[];
-  lastModifiedBy: UserFacet[];
-  postmortem: CountFacet[];
-  responder: UserFacet[];
-  severity: CountFacet[];
-  state: CountFacet[];
-  timeToRepair: AggregateFacet[];
-  timeToResolve: AggregateFacet[];
-};
-
-type CountFacet = {
-  name: string | number | boolean;
-  count: number;
-};
-
-type AggregateFacet = {
-  name: string;
-  aggregates: {
-    min: number | null;
-    max: number | null;
-  };
-};
-
-type IncidentTypeFacet = {
-  name: string;
-  count: number;
-  id: string;
-};
-
-type UserFacet = {
-  count: number;
-  email: string;
-  handle: string;
-  name: string;
-  uuid: string;
-};
-
-type FieldFacet = {
-  name: string;
-  facets: CountFacet[];
 };
 
 type IncidentField = {
