@@ -286,7 +286,7 @@ export default function StatusPage() {
   );
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-8 space-y-4 sm:space-y-8">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-8 space-y-4 sm:space-y-8 text-black">
       {/* ヘッダーセクション */}
       <header className="max-w-5xl mx-auto">
         <h1 className="text-2xl sm:text-4xl font-black text-slate-800 mb-2">システムステータス</h1>

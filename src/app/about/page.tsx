@@ -30,7 +30,7 @@ export const dynamic = "force-static"; // 静的生成を強制
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 text-black">
       <div className="max-w-4xl mx-auto px-4 py-8 sm:py-16 sm:px-6 lg:px-8">
         {/* ヘッダーセクション */}
         <div className="text-center mb-8 sm:mb-16">
