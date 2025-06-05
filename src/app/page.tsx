@@ -62,13 +62,13 @@ export default function StatusPage() {
                       type: d.type,
                     }))
                   : rel.data
-                  ? [
-                      {
-                        id: rel.data.id,
-                        type: rel.data.type,
-                      },
-                    ]
-                  : [],
+                    ? [
+                        {
+                          id: rel.data.id,
+                          type: rel.data.type,
+                        },
+                      ]
+                    : [],
               },
             ]
           )
@@ -88,9 +88,7 @@ export default function StatusPage() {
   const promises = monitors.map(
     (monitor) =>
       new Promise<DownTime[]>(async (resolve) => {
-        fetch(
-          `http://localhost:3000/api/monitor-statuses?monitor_id=${monitor.id}`
-        )
+        fetch(`http://localhost:3000/api/monitor-statuses?monitor_id=${monitor.id}`)
           .then((res) => res.json())
           .then((data) => {
             if (!data || !Array.isArray(data.data)) {
@@ -140,12 +138,8 @@ export default function StatusPage() {
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-8 space-y-8">
       {/* ヘッダーセクション */}
       <header className="max-w-5xl mx-auto">
-        <h1 className="text-4xl font-black text-slate-800 mb-2">
-          システムステータス
-        </h1>
-        <p className="text-slate-600">
-          過去90日間のシステム稼働状況をリアルタイムで確認できます
-        </p>
+        <h1 className="text-4xl font-black text-slate-800 mb-2">システムステータス</h1>
+        <p className="text-slate-600">過去90日間のシステム稼働状況をリアルタイムで確認できます</p>
       </header>
 
       {/* ステータス履歴セクション */}
@@ -180,7 +174,10 @@ export default function StatusPage() {
               }
             >
               <div className="bg-gray-100 p-4 rounded-lg">
-                <StatusBar promise={promise} title={monitors[idx].title} />
+                <StatusBar
+                  promise={promise}
+                  title={monitors[idx].title}
+                />
               </div>
             </Suspense>
           ))}
@@ -196,9 +193,7 @@ export default function StatusPage() {
           <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
             <span className="text-red-500">🚨</span> インシデント履歴
           </h2>
-          <div className="text-sm text-slate-500">
-            直近のインシデントおよび解決状況
-          </div>
+          <div className="text-sm text-slate-500">直近のインシデントおよび解決状況</div>
         </div>
 
         <Suspense

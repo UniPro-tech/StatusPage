@@ -15,9 +15,7 @@ const apiInstance = new v2.EventsApi(datadogClientConfiguration);
 export async function GET(req: Request) {
   const params = new URL(req.url).searchParams;
   const monitorId = params.get("monitor_id");
-  const fromDate = new Date(
-    params.get("from") || Date.now() - 90 * 24 * 60 * 60 * 1000
-  ); // デフォルトは90日前
+  const fromDate = new Date(params.get("from") || Date.now() - 90 * 24 * 60 * 60 * 1000); // デフォルトは90日前
   const res = await apiInstance.listEvents({
     filterQuery: `@monitor_id:${monitorId}`,
     filterFrom: fromDate.toISOString(),

@@ -50,9 +50,7 @@ export default function StatusBar({
     <>
       <div className="flex items-center gap-3 mb-4">
         <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
-        <span
-          className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[status]}`}
-        >
+        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[status]}`}>
           {status === "online" && "オンライン"}
           {status === "offline" && "オフライン"}
           {status === "degraded" && "パフォーマンス低下"}
@@ -92,12 +90,8 @@ export default function StatusBar({
               // その日に関係するダウンタイムかチェック
               if (dt.end >= dayStart && dt.start <= dayEnd) {
                 // 日付範囲内の開始時刻と終了時刻を計算
-                const start = new Date(
-                  Math.max(dt.start.getTime(), dayStart.getTime())
-                );
-                const end = new Date(
-                  Math.min(dt.end.getTime(), dayEnd.getTime())
-                );
+                const start = new Date(Math.max(dt.start.getTime(), dayStart.getTime()));
+                const end = new Date(Math.min(dt.end.getTime(), dayEnd.getTime()));
 
                 // ミリ秒単位での期間を計算
                 const duration = end.getTime() - start.getTime();
@@ -137,8 +131,7 @@ export default function StatusBar({
             statusCount,
             normalizedDurations,
           } = getDowntimeSecondsForDay(day);
-          const totalIssues =
-            statusCount.error + statusCount.warning + statusCount.degraded;
+          const totalIssues = statusCount.error + statusCount.warning + statusCount.degraded;
 
           return (
             <div
@@ -186,15 +179,9 @@ export default function StatusBar({
                 {day.toLocaleDateString()}
                 {totalIssues > 0 && (
                   <div className="text-xs">
-                    {statusCount.error > 0 && (
-                      <div>🔴 障害: {statusCount.error}件</div>
-                    )}
-                    {statusCount.degraded > 0 && (
-                      <div>🟡 低下: {statusCount.degraded}件</div>
-                    )}
-                    {statusCount.warning > 0 && (
-                      <div>🟠 警告: {statusCount.warning}件</div>
-                    )}
+                    {statusCount.error > 0 && <div>🔴 障害: {statusCount.error}件</div>}
+                    {statusCount.degraded > 0 && <div>🟡 低下: {statusCount.degraded}件</div>}
+                    {statusCount.warning > 0 && <div>🟠 警告: {statusCount.warning}件</div>}
                   </div>
                 )}
               </div>
