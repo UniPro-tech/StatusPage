@@ -109,7 +109,7 @@ type IncidentField = {
   value: string | string[] | null;
 };
 
-type IncidentFields = {
+export type IncidentFields = {
   state?: IncidentField;
   teams?: IncidentField;
   summary?: IncidentField;
