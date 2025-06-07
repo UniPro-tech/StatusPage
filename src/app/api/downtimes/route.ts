@@ -16,19 +16,34 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
 
-  const res = await apiInstance.listDowntimes({
-    currentOnly: searchParams.get("current_only") === "true",
-    pageLimit: searchParams.get("page_limit")
-      ? parseInt(searchParams.get("page_limit") || "100", 10)
-      : 100,
-    pageOffset: searchParams.get("page_offset")
-      ? parseInt(searchParams.get("page_offset") || "0", 10)
-      : 0,
+  const currentOnly = searchParams.get("current_only") === "true";
+  const include = searchParams.get("include") || undefined;
+  const pageLimit = parseInt(searchParams.get("page_limit") || "20", 10);
+  const offsetParam = parseInt(searchParams.get("page_offset") || "0", 10);
+
+  // ① totalCountを得るために1回目（offset: 0）
+  const firstRes = await apiInstance.listDowntimes({
+    currentOnly,
+    include,
+    pageLimit,
+    pageOffset: 0,
   });
+
+  const count = firstRes.meta?.page?.totalFilteredCount ?? 0;
+
+  // ② Datadogが古い順でしか返せないので、offsetを後ろから計算
+  const pageOffset = count > 0 ? Math.max(count - pageLimit * (offsetParam + 1), 0) : 0;
+
+  // ③ 実際に取得したいページを取得
+  const res = await apiInstance.listDowntimes({
+    currentOnly,
+    include,
+    pageLimit,
+    pageOffset,
+  });
+
   return new Response(JSON.stringify(res), {
     status: 200,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
   });
 }
