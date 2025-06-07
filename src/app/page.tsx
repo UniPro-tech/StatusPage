@@ -289,7 +289,7 @@ export default function StatusPage() {
       })
   );
 
-  const downtimesPromises = fetch(`${apiBaseUrl}/api/downtimes`).then(
+  const downtimesPromises = fetch(`${apiBaseUrl}/api/downtimes?page_limit=5`).then(
     (res) => res.json() as Promise<v2.ListDowntimesResponse>
   );
 
@@ -359,15 +359,20 @@ export default function StatusPage() {
       </section>
 
       {/* ダウンタイムセクション */}
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center p-6 sm:p-12">
-            <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-500" />
-          </div>
-        }
-      >
-        <DowntimesSection promise={downtimesPromises} />
-      </Suspense>
+      <section className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8 border border-slate-200 space-y-4">
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-4">
+          メンテナンス等の予期されるダウンタイム一覧
+        </h2>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center p-6 sm:p-12">
+              <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-500" />
+            </div>
+          }
+        >
+          <DowntimesSection promise={downtimesPromises} />
+        </Suspense>
+      </section>
 
       {/* インシデントセクション */}
       <section className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8 border border-slate-200">

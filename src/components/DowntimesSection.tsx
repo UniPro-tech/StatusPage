@@ -6,10 +6,12 @@ function StatusBadge({ status }: { status: string }) {
     status === "active"
       ? { color: "bg-red-100 text-red-800", label: "実行中" }
       : status === "scheduled"
-      ? { color: "bg-blue-100 text-blue-800", label: "予定" }
+      ? { color: "bg-yellow-100 text-yellow-800", label: "予定" }
       : status === "canceled"
       ? { color: "bg-gray-100 text-gray-800", label: "キャンセル" }
-      : { color: "bg-slate-100 text-slate-800", label: status };
+      : status === "ended"
+      ? { color: "bg-blue-100 text-blue-800", label: "終了" }
+      : { color: "bg-gray-100 text-gray-800", label: "不明" };
 
   return (
     <span className={`inline-block px-3 py-1 text-xs rounded-full ${color} font-medium`}>
@@ -54,10 +56,7 @@ export default function DowntimesSection({
   }
 
   return (
-    <section className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8 border border-slate-200 space-y-4">
-      <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-4">
-        予定されるダウンタイム一覧
-      </h2>
+    <>
       {downtimes.data
         ?.sort((a, b) => {
           const startA = new Date(a.attributes?.created ?? 0).getTime();
@@ -141,6 +140,6 @@ export default function DowntimesSection({
             </article>
           );
         })}
-    </section>
+    </>
   );
 }
