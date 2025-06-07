@@ -7,6 +7,7 @@ import { IncidentItem } from "@/lib/datadog";
 import { monitors } from "../../statusPageConfig.json";
 import { Metadata, Viewport } from "next";
 import CurrentIncident from "@/components/CurrentIncident";
+import DowntimesSection from "@/components/DowntimesSection";
 
 export const dynamic = "force-dynamic"; // SSRを有効にする
 export const revalidate = 0; // キャッシュを無効にする
@@ -239,7 +240,7 @@ export default function StatusPage() {
       return incidents;
     });
 
-  const promises = monitors.map(
+  const monitorPromises = monitors.map(
     (monitor) =>
       new Promise<DownTime[]>(async (resolve) => {
         fetch(`http://status.uniproject.jp/api/monitor-statuses?monitor_id=${monitor.id}`)
@@ -288,6 +289,10 @@ export default function StatusPage() {
       })
   );
 
+  const downtimesPromises = fetch(`${apiBaseUrl}/api/downtimes`).then(
+    (res) => res.json() as Promise<v2.ListDowntimesResponse>
+  );
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-8 space-y-4 sm:space-y-8 text-black">
       {/* ヘッダーセクション */}
@@ -328,9 +333,9 @@ export default function StatusPage() {
           </div>
         </div>
 
-        {/* ダウンタイムセクション */}
+        {/* ステータスバーセクション */}
         <div className="bg-slate-50 p-3 sm:p-6 rounded-xl">
-          {promises.map((promise, idx) => (
+          {monitorPromises.map((promise, idx) => (
             <Suspense
               key={idx}
               fallback={
@@ -352,6 +357,17 @@ export default function StatusPage() {
           </div>
         </div>
       </section>
+
+      {/* ダウンタイムセクション */}
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center p-6 sm:p-12">
+            <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-500" />
+          </div>
+        }
+      >
+        <DowntimesSection promise={downtimesPromises} />
+      </Suspense>
 
       {/* インシデントセクション */}
       <section className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-8 border border-slate-200">

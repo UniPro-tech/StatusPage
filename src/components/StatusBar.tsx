@@ -14,14 +14,14 @@ export default function StatusBar({
   promise: Promise<DownTime[]>;
   title: string;
 }) {
-  const downtime = use(promise);
+  const incidentialDowntime = use(promise);
 
   // 現在のステータスを判定する関数
   const getCurrentStatus = () => {
-    if (downtime.length === 0) return "online";
+    if (incidentialDowntime.length === 0) return "online";
 
     const now = new Date();
-    const latestDowntime = downtime
+    const latestDowntime = incidentialDowntime
       .filter((dt) => dt.end >= now) // まだ終わってないものだけ
       .sort((a, b) => b.start.getTime() - a.start.getTime())[0];
 
@@ -88,7 +88,7 @@ export default function StatusBar({
             };
 
             // その日のダウンタイムを集計
-            downtime.forEach((dt) => {
+            incidentialDowntime.forEach((dt) => {
               // その日に関係するダウンタイムかチェック
               if (dt.end >= dayStart && dt.start <= dayEnd) {
                 // 日付範囲内の開始時刻と終了時刻を計算
