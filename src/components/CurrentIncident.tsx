@@ -1,10 +1,18 @@
 import { IncidentItem } from "@/lib/datadog";
+import { v2 } from "@datadog/datadog-api-client";
 import { use } from "react";
 
-export default function CurrentIncident({ promise }: { promise: Promise<IncidentItem[]> }) {
-  const incidents = use(promise);
+export default function CurrentEvents({
+  incidentsPromise,
+  downtimePromise,
+}: {
+  incidentsPromise: Promise<IncidentItem[]>;
+  downtimePromise: Promise<v2.ListDowntimesResponse>;
+}) {
+  const incidents = use(incidentsPromise);
+  const downtimes = use(downtimePromise);
 
-  if (!incidents || incidents.length === 0) {
+  if ((!incidents || incidents.length === 0) && (!downtimes.data || downtimes.data?.length === 0)) {
     return <></>;
   }
 
@@ -21,7 +29,9 @@ export default function CurrentIncident({ promise }: { promise: Promise<Incident
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div className="flex items-center gap-2">
           <span className="text-red-500">🚨</span>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">現在発生中のインシデント</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
+            現在発生中のインシデントおよびメンテナンス
+          </h2>
         </div>
       </div>
       <div className="space-y-3 sm:space-y-4">
@@ -128,6 +138,98 @@ export default function CurrentIncident({ promise }: { promise: Promise<Incident
             </div>
           </div>
         ))}
+        {downtimes.data?.map((downtime) => {
+          const startValue =
+            downtime.attributes?.schedule &&
+            typeof downtime.attributes?.schedule === "object" &&
+            "start" in downtime.attributes?.schedule
+              ? downtime.attributes?.schedule.start
+              : 0;
+          const start = new Date(startValue ?? 0);
+          const endValue =
+            downtime.attributes?.schedule &&
+            typeof downtime.attributes?.schedule === "object" &&
+            "end" in downtime.attributes?.schedule
+              ? downtime.attributes?.schedule.end
+              : 0;
+          const end = new Date(endValue ?? 0);
+          const scope = downtime.attributes?.scope
+            ? parseImpactScope(downtime.attributes.scope)
+            : [];
+
+          return (
+            <article
+              key={downtime.id}
+              className="p-4 sm:p-6 rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all duration-200"
+            >
+              <div className="flex flex-col gap-4">
+                {/* ヘッダー部分 */}
+                <div className="flex items-start justify-between gap-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-slate-800 flex-grow">
+                    {downtime.attributes?.message || "タイトルなし"}
+                  </h3>
+                  <span
+                    className={`inline-block px-2 py-1 text-xs rounded-full ${
+                      downtime.attributes?.status === "scheduled"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : downtime.attributes?.status === "active"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-green-100 text-green-800"
+                    } font-medium`}
+                  >
+                    {downtime.attributes?.status === "scheduled"
+                      ? "予定"
+                      : downtime.attributes?.status === "active"
+                      ? "進行中"
+                      : downtime.attributes?.status === "ended"
+                      ? "終了"
+                      : downtime.attributes?.status === "canceled"
+                      ? "キャンセル"
+                      : "不明"}
+                  </span>
+                </div>
+
+                {/* 詳細情報 */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div className="space-y-2">
+                    <p className="flex items-center gap-2 text-slate-600">
+                      <span
+                        role="img"
+                        aria-label="start"
+                      >
+                        🕒
+                      </span>
+                      <span>開始: {start.toLocaleString("ja-JP")}</span>
+                    </p>
+                    <p className="flex items-center gap-2 text-slate-600">
+                      <span
+                        role="img"
+                        aria-label="end"
+                      >
+                        🏁
+                      </span>
+                      <span>終了: {end.toLocaleString("ja-JP")}</span>
+                    </p>
+                  </div>
+
+                  {scope.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="flex items-center gap-2 text-slate-600">
+                        <span
+                          role="img"
+                          aria-label="scope"
+                        >
+                          🔍
+                        </span>
+                        <span>影響範囲: {scope.join(", ")}</span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
