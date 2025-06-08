@@ -56,6 +56,12 @@ export default function RootLayout({
                 Status
               </Link>
               <Link
+                href="/incidents"
+                className="text-slate-600 hover:text-blue-600 transition-colors font-medium"
+              >
+                Incidents
+              </Link>
+              <Link
                 href="/about"
                 className="text-slate-600 hover:text-blue-600 transition-colors font-medium"
               >
